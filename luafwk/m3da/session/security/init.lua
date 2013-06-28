@@ -17,8 +17,7 @@ local persist = require "persist"
 local m3da    = require "m3da.bysant"
 local m3da_deserialize = m3da.deserializer()
 
---local crypto = require 'm3da.session.security.crypto'
-local crypto = require 'm3da.session.security.crypto_oaes'
+local crypto = require 'm3da.session.security.crypto'
 
 require 'print'
 
@@ -400,8 +399,8 @@ local function protector_factory (unprotected_func)
             local errmsg = tostring(next_nonce)
             log('M3DA-SESSION', 'ERROR', "Failed with status %s: %q",
                 self.last_status or 500, errmsg)
-            if self.last_status ~= "NOREPORT" then self :senderror() end
-            return self.last_status or 500
+            if self.last_status ~= "NOREPORT" then self :reporterror() end
+            return tonumber(self.last_status) or 500
         end
     end
 end
