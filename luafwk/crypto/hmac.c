@@ -30,7 +30,7 @@
 #include <strings.h>
 #include <string.h>
 #include <stddef.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include "md5.h"
 #include "sha1.h"
 #include "lauxlib.h"
@@ -181,5 +181,4 @@ int luaopen_crypto_hmac( lua_State *L) {
     return 1;
 #undef REG
 }
-
 

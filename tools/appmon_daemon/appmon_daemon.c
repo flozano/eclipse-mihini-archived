@@ -532,6 +532,42 @@ static char* stop_app(app_t* app)
   gettimeofday(&end, NULL);
   end.tv_sec += time_to_wait;
   gettimeofday(&now, NULL);
+#if defined(__APPLE__)
+  /* macOS does not provide sigtimedwait, so poll the status with a timeout.
+   * The SIGCHLD handler will update app->status when the child exits. */
+  do
+  {
+    SWI_LOG("APPMON", DEBUG, "stop_app: id=%d waiting for SIGCHLD (poll), app->status=%d\n", app->id, app->status);
+    gettimeofday(&now, NULL);
+    long ms_left = (end.tv_sec - now.tv_sec) * 1000 + (end.tv_usec - now.tv_usec) / 1000;
+    if (app->status == KILLED)
+      break;
+    if (ms_left <= 0)
+    {
+      if (SIGKILL != signal)
+      {
+        gettimeofday(&end, NULL);
+        end.tv_sec += time_to_wait;
+        signal = SIGKILL;
+        SWI_LOG("APPMON", DEBUG, "stop_app: id=%d Timeout, killing child with SIGKILL\n", app->id);
+        killpg(app->pid, SIGKILL);
+      }
+      else
+      {
+        resstr = fill_output_buf("stop_app: id=%d Timeout, did not get SIGCHLD even after SIGKILL, pid=%d, name=%s",
+            app->id, app->pid, app->prog);
+        SWI_LOG("APPMON", ERROR, "%s\n", resstr);
+        return resstr;
+      }
+    }
+    else
+    {
+      int sleep_ms = (ms_left > 100) ? 100 : (int) ms_left;
+      poll(NULL, 0, sleep_ms);
+    }
+  } while (app->status != KILLED &&
+      (end.tv_sec > now.tv_sec || (end.tv_sec == now.tv_sec && end.tv_usec > now.tv_usec)));
+#else
   struct timespec timeout;
   timeout.tv_sec = time_to_wait;
   timeout.tv_nsec = 0;
@@ -588,6 +624,7 @@ static char* stop_app(app_t* app)
     timeout.tv_sec = end.tv_sec - now.tv_sec;
     timeout.tv_nsec = 0;
   } while (app->status != KILLED && timeout.tv_sec > 0);
+#endif
 
   SWI_LOG("APPMON", DEBUG, "stop_app: exiting with status: %d[%d]\n", app->status, KILLED);
 

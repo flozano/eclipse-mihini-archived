@@ -26,7 +26,7 @@ INCLUDE_DIRECTORIES(${LUA_SOURCE_DIR}) # TODO maybe not necessary
 
 ADD_LIBRARY(lib_bysant_lua SHARED
     bysant/bysant_core_serialize.c bysant/bysant_core_deserialize.c bysant/bysant_core_common.c)
-TARGET_LINK_LIBRARIES(lib_bysant_lua lib_bysant)
+TARGET_LINK_LIBRARIES(lib_bysant_lua lib_bysant lualib)
 SET_TARGET_PROPERTIES(lib_bysant_lua PROPERTIES OUTPUT_NAME bysant_lua)
 
 # m3da.bysant.core only contains luaopen_m3da_bysant_core and a link to lib_bysant_lua

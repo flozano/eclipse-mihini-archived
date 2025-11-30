@@ -17,11 +17,11 @@
 
 /* Lua wrapper around the ISAAC random number generator embedded in OpenAES. */
 
+#include <stdlib.h>
 #include <isaac/rand.h>
 #include <time.h>
 #include <sys/timeb.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <string.h>
 #include "lauxlib.h"
 

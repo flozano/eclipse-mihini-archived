@@ -21,7 +21,7 @@
 #include "stagedb.h"
 #include "bysantd.h" // deserialization
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 //#define SDB_VERBOSE_PRINT
 

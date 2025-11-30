@@ -40,7 +40,7 @@ SET(SDB_SRC
   sdb_consolidate.c)
 
 ADD_LIBRARY(lib_stagedb SHARED ${SDB_SRC})
-TARGET_LINK_LIBRARIES(lib_stagedb lib_bysant bysant_core)
+TARGET_LINK_LIBRARIES(lib_stagedb lib_bysant)
 SET_TARGET_PROPERTIES(lib_stagedb PROPERTIES
     OUTPUT_NAME stagedb)
 INSTALL(TARGETS lib_bysant LIBRARY DESTINATION lib)

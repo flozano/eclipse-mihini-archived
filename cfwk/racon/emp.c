@@ -20,6 +20,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <time.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <strings.h>
@@ -716,9 +717,33 @@ static uint32_t ipc_read(char* buffer, uint32_t size)
 
 static int wait_for_response(uint8_t rid, const struct timespec *abs_timeout)
 {
+#if defined(__APPLE__)
+  /* macOS lacks sem_timedwait; emulate it with sem_trywait and a deadline. */
+  struct timespec sleep_ts = {0, 100000000}; /* 100ms */
+  while (1)
+  {
+    if (sem_trywait(&parser->commandInProgress[rid].respSem) == 0)
+      return 0;
+
+    if (errno != EAGAIN && errno != EINTR)
+      return -1;
+
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    if (now.tv_sec > abs_timeout->tv_sec ||
+        (now.tv_sec == abs_timeout->tv_sec && now.tv_usec * 1000 >= abs_timeout->tv_nsec))
+    {
+      errno = ETIMEDOUT;
+      return -1;
+    }
+
+    nanosleep(&sleep_ts, NULL);
+  }
+#else
   int ret;
   ret = sem_timedwait(&parser->commandInProgress[rid].respSem, abs_timeout);
   return ret;
+#endif
 }
 
 rc_ReturnCode_t emp_send_and_wait_response(EmpCommand command, uint8_t type, const char* payload, uint32_t payloadsize,

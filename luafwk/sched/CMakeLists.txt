@@ -41,7 +41,10 @@ ADD_DEPENDENCIES(sched_daemon sched)
 
 
 ADD_LUA_LIBRARY(sched_timer_core DESTINATION sched/timer timer_core.c)
-TARGET_LINK_LIBRARIES(sched_timer_core lualib rt)
+TARGET_LINK_LIBRARIES(sched_timer_core lualib)
+if(NOT APPLE)
+    TARGET_LINK_LIBRARIES(sched_timer_core rt)
+endif()
 SET_TARGET_PROPERTIES (sched_timer_core PROPERTIES OUTPUT_NAME core)
 ADD_DEPENDENCIES(sched sched_timer_core)
 

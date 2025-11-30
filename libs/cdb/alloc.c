@@ -1,6 +1,6 @@
 #include "alloc.h"
 #include "error.h"
-#include <malloc.h>
+#include <stdlib.h>
 //extern char *malloc();
 //extern void free();
 

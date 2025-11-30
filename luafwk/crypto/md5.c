@@ -25,7 +25,7 @@
 
 #include <strings.h>
 #include <stddef.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include "md5.h"
 #include "lauxlib.h"
 
@@ -127,5 +127,4 @@ int luaopen_crypto_md5( lua_State *L) {
     return 1;
 #undef REG
 }
-
 

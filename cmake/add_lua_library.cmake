@@ -96,6 +96,11 @@ function(add_lua_library name)
             MODULE ${cfilelist}
         )
 
+        # On macOS, allow Lua symbols to be resolved lazily at load time.
+        if(APPLE)
+            set_target_properties(${name} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+        endif()
+
         if (luafilelist)
             add_custom_target(
                 "${name}_lua" ${all}
